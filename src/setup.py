@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 DEPENDENCIES = [
-    # "torch",
-    # "jupyterlab",
+    "torch",
+    "jupyterlab",
 ]
 
 setup(

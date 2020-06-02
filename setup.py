@@ -2,7 +2,9 @@ from setuptools import setup
 
 DEPENDENCIES = [
     "torch",
-    "jupyterlab",
+    "jupyterlab",,
+    "pytest",
+    "pytest-cov"
 ]
 
 setup(

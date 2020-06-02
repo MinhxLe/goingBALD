@@ -5,11 +5,11 @@ class Vocab:
 
     def __init__(self, pre_made: Dict[str,int] = None):
         if pre_made:
-            self.token_to_i = pre_made
-            self.i_to_token = {pre_made[token] for token in pre_made}
+            self.token_to_id = pre_made
+            self.id_to_token = {pre_made[token] for token in pre_made}
         else:
-            self.token_to_i = {}
-            self.i_to_token = {}
+            self.token_to_id = {}
+            self.id_to_token = {}
 
         self.unk = "<UNK>"
         self.add_token(self.unk)
@@ -18,26 +18,42 @@ class Vocab:
         self.eos = "<EOS>"
         self.add_token(self.eos)
 
-    def add_token(self,token: str) -> int:
-        i = self.token_to_i.setdefault(
-                token,
-                len(self.token_to_i)
-            )
-        return i
+    def __len__(self):
+        return len(self.token_to_id)
 
-    def lookup_i(self,token: str) -> int:
-        if token in self.token_to_i:
-            return self.token_to_i[token]
+    def add_token(self,token: str) -> int:
+
+        if token in self.token_to_id:
+            index = self.token_to_id[token]
         else:
-            return self.token_to_i[self.unk]
+            index = len(self.token_to_id)
+            self.token_to_id[token] = index
+            self.id_to_token[index] = token
+
+        return index
+
+    def lookup_id(self,token: str) -> int:
+
+        if token in self.token_to_id:
+            return self.token_to_id[token]
+        else:
+            return self.token_to_id[self.unk]
 
     def lookup_token(self,j: int) -> str:
-        if j in self.i_to_token.keys():
-            return self.i_to_token[j]
+        if j in self.id_to_token.keys():
+            return self.id_to_token[j]
         else:
             raise KeyError(f"{j} not a valid index.")
 
+    def to_json(self,path: str):
+        with open(path, 'w') as file:
+            json.dump(self.token_to_id, file)
+
     @classmethod
     def from_json(cls,path: str):
-        pre_made = json.loads(path)
+
+        with open(path, 'r') as file:
+            pre_made = json.load(file)
+
         return cls(pre_made)
+

@@ -16,3 +16,33 @@ class Vectorizer:
     def vectorize(self,sequence: List[str]) -> Tensor:
         pre_vectorized = self.pre_vectorize(sequence)
         return Tensor(pre_vectorized)
+
+
+class LabelVectorizer:
+    '''
+    Class to vectorize the NER tags
+    '''
+    encoding = {
+        'O':0,
+        'B-PER':1,
+        'I-PER':1,
+        'B-ORG':2,
+        'I-ORG':2,
+        'B-LOC':3,
+        'I-LOC':3,
+        'B-MISC':4,
+        'I-MISC':4,
+    }
+
+    @classmethod
+    def pre_vectorize(cls,sequence: List[str]) -> List[int]:
+        out = [0]
+        middle = [cls.encoding[tag] for tag in sequence]
+        out.extend(middle)
+        out.append(0)
+        return out
+
+    @classmethod
+    def vectorize(cls,sequence: List[str]) -> Tensor:
+        pre_vectorized = cls.pre_vectorize(sequence)
+        return Tensor(pre_vectorized)
