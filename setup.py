@@ -1,19 +1,16 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-DEPENDENCIES = [
+dependencies = [
     "torch",
-    "jupyterlab",,
+    "jupyterlab",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
 ]
 
 setup(
     name="bald",
     version="0.1",
     author="ActuallyOpenAI",
-    packages=["bald"],
-    package_dir={
-        "":"./bald",
-    },
-    install_requires=DEPENDENCIES,
+    packages=find_packages(include="bald"),
+    install_requires=dependencies,
 )

@@ -1,5 +1,9 @@
-from torch import Tensor
 from typing import List
+
+import torch
+from torch import Tensor
+import torchnlp.word_to_vector.pretrained_word_vectors._PretrainedWordVectors as BaseWordVectorizer
+
 from bald.vocab import Vocab
 
 class Vectorizer:
@@ -15,7 +19,8 @@ class Vectorizer:
 
     def vectorize(self,sequence: List[str]) -> Tensor:
         pre_vectorized = self.pre_vectorize(sequence)
-        return Tensor(pre_vectorized)
+        pre_vectorized = [Tensor(token) for token in pre_vectorized]
+        return torch.stack(pre_vectorized)
 
 
 class LabelVectorizer:
@@ -45,4 +50,13 @@ class LabelVectorizer:
     @classmethod
     def vectorize(cls,sequence: List[str]) -> Tensor:
         pre_vectorized = cls.pre_vectorize(sequence)
-        return Tensor(pre_vectorized)
+        pre_vectorized = [Tensor(token) for token in pre_vectorized]
+        return torch.stack(pre_vectorized)
+
+class WordVectorizer:
+
+    def __init__(self, vectorizer: BaseWordVectorizer):
+        self.vectorizer = vectorizer
+
+    def vectorize(self, sequence: List[str]) -> Tensor:
+        return self.vectorizer(text)
