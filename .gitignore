@@ -5,3 +5,4 @@
 **.coverage
 **.pytest_cache
 **tinkering/
+**.ipynb_checkpoints/
