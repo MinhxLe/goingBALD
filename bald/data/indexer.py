@@ -4,7 +4,7 @@ The index can be used with an embedding
 """
 import string
 import pickle
-from src.data.constants import PAD_TOKEN, UNKNOWN_TOKEN
+from bald.data.constants import PAD_TOKEN, UNKNOWN_TOKEN
 
 
 class Indexer:

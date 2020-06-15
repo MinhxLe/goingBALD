@@ -1,5 +1,5 @@
 from torch.utils.data import Dataset
-from src.data.conll2003_utils import load_raw_dataset
+from bald.data.conll2003_utils import load_raw_dataset
 from typing import List, Dict
 
 class CoNLLNERDataset(Dataset):

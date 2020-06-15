@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from typing import List
-from src.model.cnn import ConvNet
+from bald.model.cnn import ConvNet
 
 
 class CharEncoder(nn.Module):

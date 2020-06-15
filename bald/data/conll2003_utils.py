@@ -1,6 +1,6 @@
 from typing import Dict, List
 from collections import defaultdict
-from src.data.indexer import Vocabulary, Indexer
+from bald.data.indexer import Vocabulary, Indexer
 
 
 

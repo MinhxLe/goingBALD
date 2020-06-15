@@ -5,6 +5,7 @@ dependencies = [
     "jupyterlab",
     "pytest",
     "pytest-cov",
+    "gensim",
 ]
 
 setup(
