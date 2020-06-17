@@ -2,7 +2,7 @@ from typing import List
 
 import torch
 from torch import Tensor
-import torchnlp.word_to_vector.pretrained_word_vectors._PretrainedWordVectors as BaseWordVectorizer
+# import torchnlp.word_to_vector.pretrained_word_vectors._PretrainedWordVectors as BaseWordVectorizer
 
 from bald.vocab import Vocab
 

@@ -6,6 +6,7 @@ dependencies = [
     "pytest",
     "pytest-cov",
     "gensim",
+    "pytorch-nlp",
 ]
 
 setup(
