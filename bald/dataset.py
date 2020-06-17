@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset
 from bald.load_ner_dataset import load_ner_dataset
 
-class ConllData(Dataset):
+class ConllDataset(Dataset):
     def __init__(self,data_path,vectors,emb_dim):
         self.data = load_ner_dataset(data_path)
         self.encoding = {
