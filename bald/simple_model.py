@@ -49,6 +49,7 @@ class ConllModel(nn.Module):
         y_pred = x.view(batch_len*max_seq_len,-1)
         
         if apply_softmax:
+            # TODO
             pass
         
         return y_pred

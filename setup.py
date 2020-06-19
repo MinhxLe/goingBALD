@@ -7,6 +7,7 @@ dependencies = [
     "pytest-cov",
     "gensim",
     "pytorch-nlp",
+    "matplotlib",
 ]
 
 setup(

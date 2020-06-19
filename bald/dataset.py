@@ -24,6 +24,10 @@ class ConllDataset(Dataset):
     def compute_max_seq_len(self):
         return max(len(d["tag"]) for d in self.data)
 
+    def set_max_seq_len(self,val: int):
+        assert val > 0
+        self.max_seq_len = val
+
     def __len__(self):
         return len(self.data)
 
