@@ -1,8 +1,12 @@
+import torch
 from torch import nn
+import torch.nn.functional as F
 
 class ConllModel(nn.Module):
     def __init__(self,max_seq_len,emb_dim,num_labels):
         super().__init__()
+
+        self.num_labels = num_labels
         
         cnn_kwargs = {
             "in_channels":1,
@@ -37,19 +41,26 @@ class ConllModel(nn.Module):
         out += 1
         return out
         
-    def forward(self,x_raw,apply_softmax=False):
+    def forward(self,x_raw,apply_softmax=False,verbose=False):
         batch_len,max_seq_len,_ = x_raw.size()
-        # y_target = y_raw.view(batch_len*max_seq_len)
         
         x = x_raw.unsqueeze(dim=1)
         x = self.cnn(x)
-        x = nn.functional.relu(x)
+        x = F.relu(x)
         x = x.view(batch_len,-1)
         x = self.fc(x)
-        y_pred = x.view(batch_len*max_seq_len,-1)
+
+        if verbose is True:
+            print(f"Batch len is {batch_len}")
+            print(f"max_seq_len is {max_seq_len}")
+            print(f"num labels is {self.num_labels}")
+            print(f"Tensor shape is {x.size()}")
         
-        if apply_softmax:
-            # TODO
-            pass
+        if apply_softmax is True:
+            y_pred = x.view(batch_len,max_seq_len,self.num_labels)
+            y_pred = F.softmax(y_pred,dim=2)
+            y_pred = torch.argmax(y_pred,dim=2)
+        else:
+            y_pred = x.view(batch_len*max_seq_len,-1)    
         
         return y_pred

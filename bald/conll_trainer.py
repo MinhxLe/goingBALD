@@ -10,12 +10,16 @@ import os
 import matplotlib.pyplot as plt
 from torchnlp.word_to_vector import GloVe
 import torch
+import torch.nn.functional as F
 import tqdm
 from torch import nn
 from torch.utils.data import DataLoader
+from sklearn.metrics import f1_score
+
 from bald import data_dir,vectors_dir,load_ner_dataset
 from bald.dataset import ConllDataset
 from bald.simple_model import ConllModel
+from bald.utils import epoch_run
 
 vectors = GloVe(cache=vectors_dir)
 
@@ -38,61 +42,61 @@ model = ConllModel(
     emb_dim = train_ds.emb_dim
     )
 
-num_epochs = 5
-objective = nn.CrossEntropyLoss()
+def loss_fun(input,target):
+    batch_len,seq_len = target.size()
+    target = target.view(batch_len*seq_len)
+    return F.cross_entropy(input=input,target=target,ignore_index=0)
+
+def score_fun(input,target):
+    dims,labels = input.size()
+    y_pred = F.softmax(input,dim=1)
+    y_pred = torch.argmax(y_pred,dim=1)
+    target = target.view(dims)
+    return f1_score(
+            y_true = target.cpu().data.numpy(),
+            y_pred = y_pred.cpu().data.numpy(),
+            labels = list(range(1,6)),
+            average = "weighted",
+        )
+
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
 optimizer = torch.optim.Adam(model.parameters())
 
-epoch_train_losses = []
-epoch_test_losses = []
+# set number of epochs from command line
+# num_epochs = int(input("Enter number of epochs: "))
+num_epochs = 30
+
+train_losses = []
+test_losses = []
+
 for epoch in range(num_epochs):
     print(f"\nEpoch {epoch+1}.")
 
-    model.train()
-    batch_losses = []
     print("Training.")
-    with tqdm.tqdm(total=len(train_dl)) as progress_bar:
-        for datum in train_dl:
+    run_d = epoch_run(
+        model = model,
+        data_loader = train_dl,
+        criterion = loss_fun,
+        score_fun = score_fun,
+        trainer_mode = True,
+        optimizer = optimizer,
+        )
 
-            optimizer.zero_grad()
+    train_losses.append(run_d["loss"])
+    print(f"Train f1 score is {run_d['score']}.")
 
-            x_raw, y_raw = datum
-            batch_len,seq_len = y_raw.size()
-            y_target = y_raw.view(batch_len*seq_len)
-            y_pred = model(x_raw)
+    print("Evaluating.")
+    run_d = epoch_run(
+        model = model,
+        data_loader = train_dl,
+        criterion = loss_fun,
+        score_fun = score_fun,
+        trainer_mode = False,
+        )
+    test_losses.append(run_d["loss"])
+    print(f"Test f1 score is {run_d['score']}.")
 
-            loss = objective(y_pred, y_target)
-            batch_losses.append(loss.item())
-            loss.backward()
-            optimizer.step()
-
-            progress_bar.update(1)
-
-    epoch_loss = sum(batch_losses)/len(batch_losses)
-    epoch_train_losses.append(epoch_loss)
-
-    model.eval()
-    batch_losses = []
-    print("Testing.")
-    with tqdm.tqdm(total=len(test_dl)) as progress_bar:
-        for datum in test_dl:
-
-            x_raw, y_raw = datum
-            batch_len,seq_len = y_raw.size()
-            y_target = y_raw.view(batch_len*seq_len)
-            y_pred = model(x_raw)
-
-            loss = objective(y_pred, y_target)
-            batch_losses.append(loss.item())
-
-            progress_bar.update(1)
-
-    epoch_loss = sum(batch_losses)/len(batch_losses)
-    epoch_test_losses.append(epoch_loss)
-
-plt.plot(epoch_train_losses, label="train")
-plt.plot(epoch_test_losses, label="test")
+plt.plot(train_losses, label="train")
+plt.plot(test_losses, label="test")
 plt.legend()
 plt.show()
-
-

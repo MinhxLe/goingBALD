@@ -8,6 +8,7 @@ dependencies = [
     "gensim",
     "pytorch-nlp",
     "matplotlib",
+    "sklearn",
 ]
 
 setup(

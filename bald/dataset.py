@@ -6,7 +6,6 @@ class ConllDataset(Dataset):
     def __init__(self,data_path,vectors,emb_dim):
         self.data = load_ner_dataset(data_path)
         self.encoding = {
-            'O':0,
             'B-PER':1,
             'I-PER':1,
             'B-ORG':2,
@@ -15,6 +14,7 @@ class ConllDataset(Dataset):
             'I-LOC':3,
             'B-MISC':4,
             'I-MISC':4,
+            'O':5,
         }
         self.max_seq_len = self.compute_max_seq_len()
         self.num_labels = len(self.encoding)
