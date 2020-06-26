@@ -1,0 +1,53 @@
+2020-06-25 23:40:56.842 | INFO     | __main__:<module>:28 - Using GloVe 300 embeddings, CoNLL2003 dataset.
+2020-06-25 23:41:01.466 | INFO     | __main__:<module>:44 - 10 Convolutional layers with 100 filters.
+2020-06-25 23:41:01.467 | INFO     | __main__:<module>:47 - Will (try to) train for 10 epochs.
+2020-06-25 23:41:01.474 | INFO     | __main__:<module>:81 - Epoch 1. Training.
+2020-06-25 23:44:49.817 | INFO     | __main__:<module>:93 - Train loss is 0.5177081834151547.
+2020-06-25 23:44:49.818 | INFO     | __main__:<module>:94 - Train f1 score is 0.19436712793363603.
+2020-06-25 23:46:35.019 | INFO     | __main__:<module>:105 - Eval loss is 0.2905481735399283.
+2020-06-25 23:46:35.020 | INFO     | __main__:<module>:106 - Eval f1 score is 0.2194972100127287.
+2020-06-25 23:46:35.020 | INFO     | __main__:<module>:81 - Epoch 2. Training.
+2020-06-25 23:50:25.964 | INFO     | __main__:<module>:93 - Train loss is 0.23725530230350841.
+2020-06-25 23:50:25.965 | INFO     | __main__:<module>:94 - Train f1 score is 0.2224474169023158.
+2020-06-25 23:52:09.165 | INFO     | __main__:<module>:105 - Eval loss is 0.15377867048673793.
+2020-06-25 23:52:09.165 | INFO     | __main__:<module>:106 - Eval f1 score is 0.2281334770625387.
+2020-06-25 23:52:09.165 | INFO     | __main__:<module>:81 - Epoch 3. Training.
+2020-06-25 23:56:06.716 | INFO     | __main__:<module>:93 - Train loss is 0.14271098326073525.
+2020-06-25 23:56:06.716 | INFO     | __main__:<module>:94 - Train f1 score is 0.2278984699711666.
+2020-06-25 23:57:47.104 | INFO     | __main__:<module>:105 - Eval loss is 0.09254858816769332.
+2020-06-25 23:57:47.104 | INFO     | __main__:<module>:106 - Eval f1 score is 0.2318743346838744.
+2020-06-25 23:57:47.104 | INFO     | __main__:<module>:81 - Epoch 4. Training.
+2020-06-26 00:01:37.701 | INFO     | __main__:<module>:93 - Train loss is 0.0925568683680568.
+2020-06-26 00:01:37.702 | INFO     | __main__:<module>:94 - Train f1 score is 0.22900865647124033.
+2020-06-26 00:03:19.379 | INFO     | __main__:<module>:105 - Eval loss is 0.06189868883140433.
+2020-06-26 00:03:19.380 | INFO     | __main__:<module>:106 - Eval f1 score is 0.23072934623326044.
+2020-06-26 00:03:19.380 | INFO     | __main__:<module>:81 - Epoch 5. Training.
+2020-06-26 00:07:08.724 | INFO     | __main__:<module>:93 - Train loss is 0.06252708214162382.
+2020-06-26 00:07:08.724 | INFO     | __main__:<module>:94 - Train f1 score is 0.2289454229407797.
+2020-06-26 00:08:53.896 | INFO     | __main__:<module>:105 - Eval loss is 0.04105320644737688.
+2020-06-26 00:08:53.896 | INFO     | __main__:<module>:106 - Eval f1 score is 0.23028055037025655.
+2020-06-26 00:08:53.896 | INFO     | __main__:<module>:81 - Epoch 6. Training.
+2020-06-26 00:12:40.589 | INFO     | __main__:<module>:93 - Train loss is 0.04278600532442395.
+2020-06-26 00:12:40.589 | INFO     | __main__:<module>:94 - Train f1 score is 0.22896191010688435.
+2020-06-26 00:14:23.120 | INFO     | __main__:<module>:105 - Eval loss is 0.027702691349218777.
+2020-06-26 00:14:23.120 | INFO     | __main__:<module>:106 - Eval f1 score is 0.22997767524056842.
+2020-06-26 00:14:23.120 | INFO     | __main__:<module>:81 - Epoch 7. Training.
+2020-06-26 00:18:05.991 | INFO     | __main__:<module>:93 - Train loss is 0.030178512790119214.
+2020-06-26 00:18:05.991 | INFO     | __main__:<module>:94 - Train f1 score is 0.22798711685740236.
+2020-06-26 00:19:49.534 | INFO     | __main__:<module>:105 - Eval loss is 0.01994439846337604.
+2020-06-26 00:19:49.535 | INFO     | __main__:<module>:106 - Eval f1 score is 0.22919148969633987.
+2020-06-26 00:19:49.535 | INFO     | __main__:<module>:81 - Epoch 8. Training.
+2020-06-26 00:23:35.575 | INFO     | __main__:<module>:93 - Train loss is 0.02139050650920695.
+2020-06-26 00:23:35.575 | INFO     | __main__:<module>:94 - Train f1 score is 0.22788227245217174.
+2020-06-26 00:25:21.444 | INFO     | __main__:<module>:105 - Eval loss is 0.014339294790951555.
+2020-06-26 00:25:21.444 | INFO     | __main__:<module>:106 - Eval f1 score is 0.22560904764077752.
+2020-06-26 00:25:21.444 | INFO     | __main__:<module>:81 - Epoch 9. Training.
+2020-06-26 00:29:09.144 | INFO     | __main__:<module>:93 - Train loss is 0.01554450942282833.
+2020-06-26 00:29:09.144 | INFO     | __main__:<module>:94 - Train f1 score is 0.22725285500521727.
+2020-06-26 00:30:54.129 | INFO     | __main__:<module>:105 - Eval loss is 0.010963733410284018.
+2020-06-26 00:30:54.129 | INFO     | __main__:<module>:106 - Eval f1 score is 0.22575741703469662.
+2020-06-26 00:30:54.129 | INFO     | __main__:<module>:81 - Epoch 10. Training.
+2020-06-26 00:34:50.480 | INFO     | __main__:<module>:93 - Train loss is 0.01151877281013757.
+2020-06-26 00:34:50.480 | INFO     | __main__:<module>:94 - Train f1 score is 0.2269127113614368.
+2020-06-26 00:36:35.372 | INFO     | __main__:<module>:105 - Eval loss is 0.00791833195775779.
+2020-06-26 00:36:35.372 | INFO     | __main__:<module>:106 - Eval f1 score is 0.22632468662371702.
