@@ -10,7 +10,8 @@ def epoch_run(
     optimizer = None,
     ):
     """
-    Will this modify the model in-place?
+    Boilerplate code for running an epoch.
+    I am following pytorch and using input/target as names.
 
     Args
     ----
