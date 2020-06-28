@@ -15,17 +15,11 @@ import tqdm
 from torch import nn
 from torch.utils.data import DataLoader
 from sklearn.metrics import f1_score
-from loguru import logger
-from datetime import datetime
 
-from bald import data_dir,vectors_dir,load_ner_dataset, results_dir
+from bald import data_dir,vectors_dir,load_ner_dataset
 from bald.dataset import ConllDataset
 from bald.simple_model import ConllModel
 from bald.utils import epoch_run
-
-root_name = str(results_dir / "logs" / f"conll_trainer_{datetime.now()}")
-logger.add(root_name+"_.log")
-logger.info("Using GloVe 300 embeddings, CoNLL2003 dataset.")
 
 vectors = GloVe(cache=vectors_dir)
 
@@ -35,23 +29,17 @@ train_ds = ConllDataset(data_path=train_path,vectors=vectors,emb_dim=300)
 test_path = os.path.join(data_dir,"raw","CoNLL2003","eng.testa")
 test_ds = ConllDataset(data_path=test_path,vectors=vectors,emb_dim=300)
 
+max_seq_len = max(train_ds.max_seq_len,test_ds.max_seq_len)
+train_ds.set_max_seq_len(max_seq_len)
+test_ds.set_max_seq_len(max_seq_len)
+
 train_dl = DataLoader(train_ds, batch_size=32, shuffle=True)
 test_dl = DataLoader(test_ds, batch_size=32, shuffle=False)
 
-# global stuff
-cnns = 10
-out_channels = 100
-logger.info(f"{cnns} Convolutional layers with {out_channels} filters.")
-
-num_epochs = 10
-logger.info(f"Will (try to) train for {num_epochs} epochs.")
-
-# here we go
 model = ConllModel(
+    max_seq_len = max_seq_len,
     num_labels = train_ds.num_labels,
-    emb_dim = train_ds.emb_dim,
-    out_channels = out_channels,
-    cnns = cnns,
+    emb_dim = train_ds.emb_dim
     )
 
 def loss_fun(input,target):
@@ -71,14 +59,18 @@ def score_fun(input,target):
             average = "weighted",
         )
 
+# optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
 optimizer = torch.optim.Adam(model.parameters())
 
+# set number of epochs from command line
+# num_epochs = int(input("Enter number of epochs: "))
+num_epochs = 30
 
 train_losses = []
 test_losses = []
 
 for epoch in range(num_epochs):
-    logger.info(f"Epoch {epoch+1}")
+    print(f"\nEpoch {epoch+1}.")
 
     print("Training.")
     run_d = epoch_run(
@@ -90,9 +82,8 @@ for epoch in range(num_epochs):
         optimizer = optimizer,
         )
 
-    logger.info(f"Train loss is {run_d['loss']}.")
-    logger.info(f"Train f1 score is {run_d['score']}.")
     train_losses.append(run_d["loss"])
+    print(f"Train f1 score is {run_d['score']}.")
 
     print("Evaluating.")
     run_d = epoch_run(
@@ -102,11 +93,10 @@ for epoch in range(num_epochs):
         score_fun = score_fun,
         trainer_mode = False,
         )
-    logger.info(f"Eval loss is {run_d['loss']}.")
-    logger.info(f"Eval f1 score is {run_d['score']}.")
     test_losses.append(run_d["loss"])
+    print(f"Test f1 score is {run_d['score']}.")
 
 plt.plot(train_losses, label="train")
 plt.plot(test_losses, label="test")
 plt.legend()
-plt.savefig(fname=root_name+"_.png")
+plt.show()
