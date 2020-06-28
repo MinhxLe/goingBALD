@@ -9,6 +9,7 @@ dependencies = [
     "pytorch-nlp",
     "matplotlib",
     "sklearn",
+    "nltk",
 ]
 
 setup(

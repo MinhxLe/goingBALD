@@ -1,0 +1,177 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/a3c87ab5/
+<BOS>	tests/minimal.json	/^{"<UNK>": 0, "<BOS>": 1, "<EOS>": 2, "godzilla": 3, "spiderman": 4}/;"	n
+<EOS>	tests/minimal.json	/^{"<UNK>": 0, "<BOS>": 1, "<EOS>": 2, "godzilla": 3, "spiderman": 4}/;"	n
+<UNK>	tests/minimal.json	/^{"<UNK>": 0, "<BOS>": 1, "<EOS>": 2, "godzilla": 3, "spiderman": 4}/;"	n
+ActiveLearningSamplerT	bald/data/samplers.py	/^class ActiveLearningSamplerT:$/;"	c
+BOS_TOKEN	bald/data/constants.py	/^BOS_TOKEN = "<bos>"$/;"	v
+BOW_TOKEN	bald/data/constants.py	/^BOW_TOKEN = "<bow>"$/;"	v
+BatchIndicesSamplerFactory	bald/data/samplers.py	/^class BatchIndicesSamplerFactory:$/;"	c
+CharEncoder	bald/model/model.py	/^class CharEncoder(nn.Module):$/;"	c
+Charset	bald/data/indexer.py	/^class Charset(Indexer):$/;"	c
+CoNLLNERDataset	bald/data/dataset.py	/^class CoNLLNERDataset(Dataset):$/;"	c
+ConllDataset	bald/dataset.py	/^class ConllDataset(Dataset):$/;"	c
+ConllModel	bald/simple_model.py	/^class ConllModel(nn.Module):$/;"	c
+ConvBlock	bald/model/cnn.py	/^class ConvBlock(nn.Module):$/;"	c
+ConvNet	bald/model/cnn.py	/^class ConvNet(nn.Module):$/;"	c
+DATA_PROCESSED_DIR	scripts/train.py	/^DATA_PROCESSED_DIR = "artifacts\/data\/processed\/CoNLL2003\/"$/;"	v
+Decoder	bald/model/model.py	/^class Decoder(nn.Module):$/;"	c
+EOS_TOKEN	bald/data/constants.py	/^EOS_TOKEN = "<eos>"$/;"	v
+EOW_TOKEN	bald/data/constants.py	/^EOW_TOKEN = "<eow>"$/;"	v
+F	bald/conll_trainer.py	/^import torch.nn.functional as F$/;"	I
+F	bald/model/model.py	/^import torch.nn.functional as F$/;"	I
+F	bald/simple_model.py	/^import torch.nn.functional as F$/;"	I
+Indexer	bald/data/indexer.py	/^class Indexer:$/;"	c
+LabelVectorizer	bald/vectorizer.py	/^class LabelVectorizer:$/;"	c
+MODEL_DIR	scripts/train.py	/^MODEL_DIR = "artifacts\/models"$/;"	v
+MODEL_NAME	scripts/train.py	/^MODEL_NAME = "ConNLL_NERModel"$/;"	v
+Model	bald/model/model.py	/^class Model(nn.Module):$/;"	c
+PAD_TOKEN	bald/data/constants.py	/^PAD_TOKEN = "<pad>"$/;"	v
+RandomALSampler	bald/data/samplers.py	/^class RandomALSampler(ActiveLearningSamplerT):$/;"	c
+UNKNOWN_TOKEN	bald/data/constants.py	/^UNKNOWN_TOKEN = "<unk>"$/;"	v
+Vectorizer	bald/vectorizer.py	/^class Vectorizer:$/;"	c
+Vocab	bald/vocab.py	/^class Vocab:$/;"	c
+Vocabulary	bald/data/indexer.py	/^class Vocabulary(Indexer):$/;"	c
+WORD_EMBEDDING_SIZE	bald/parameters.py	/^WORD_EMBEDDING_SIZE = 300$/;"	v
+WordEncoder	bald/model/model.py	/^class WordEncoder(nn.Module):$/;"	c
+WordVectorizer	bald/vectorizer.py	/^class WordVectorizer:$/;"	c
+_NEW_DOC_LINE	bald/data/conll2003_utils.py	/^_NEW_DOC_LINE = "-DOCSTART-"$/;"	v
+_NEW_SENTENCE_LINE	bald/data/conll2003_utils.py	/^_NEW_SENTENCE_LINE = '\\n'$/;"	v
+__all__	bald/__init__.py	/^__all__ = [$/;"	v
+__getitem__	bald/data/dataset.py	/^    def __getitem__(self, key):$/;"	m	class:CoNLLNERDataset
+__getitem__	bald/data/indexer.py	/^    def __getitem__(self, key):$/;"	m	class:Charset
+__getitem__	bald/data/indexer.py	/^    def __getitem__(self, key):$/;"	m	class:Indexer
+__getitem__	bald/data/indexer.py	/^    def __getitem__(self, key):$/;"	m	class:Vocabulary
+__getitem__	bald/dataset.py	/^    def __getitem__(self,i):$/;"	m	class:ConllDataset
+__init__	bald/data/dataset.py	/^    def __init__(self, sentence_data):$/;"	m	class:CoNLLNERDataset
+__init__	bald/data/indexer.py	/^    def __init__(self):$/;"	m	class:Charset
+__init__	bald/data/indexer.py	/^    def __init__(self):$/;"	m	class:Indexer
+__init__	bald/data/indexer.py	/^    def __init__(self):$/;"	m	class:Vocabulary
+__init__	bald/data/samplers.py	/^    def __init__($/;"	m	class:BatchIndicesSamplerFactory
+__init__	bald/data/samplers.py	/^    def __init__(self, data: Dataset):$/;"	m	class:ActiveLearningSamplerT
+__init__	bald/dataset.py	/^    def __init__(self,data_path,vectors,emb_dim):$/;"	m	class:ConllDataset
+__init__	bald/model/cnn.py	/^    def __init__($/;"	m	class:ConvBlock
+__init__	bald/model/cnn.py	/^    def __init__($/;"	m	class:ConvNet
+__init__	bald/model/model.py	/^    def __init__($/;"	m	class:CharEncoder
+__init__	bald/model/model.py	/^    def __init__($/;"	m	class:Decoder
+__init__	bald/model/model.py	/^    def __init__($/;"	m	class:WordEncoder
+__init__	bald/model/model.py	/^    def __init__(self, charset_size, char_embedding_size, char_channels,$/;"	m	class:Model
+__init__	bald/simple_model.py	/^    def __init__(self,max_seq_len,emb_dim,num_labels):$/;"	m	class:ConllModel
+__init__	bald/vectorizer.py	/^    def __init__(self, vectorizer: BaseWordVectorizer):$/;"	m	class:WordVectorizer
+__init__	bald/vectorizer.py	/^    def __init__(self, vocab: Vocab):$/;"	m	class:Vectorizer
+__init__	bald/vocab.py	/^    def __init__(self, pre_made: Dict[str,int] = None):$/;"	m	class:Vocab
+__len__	bald/data/dataset.py	/^    def __len__(self):$/;"	m	class:CoNLLNERDataset
+__len__	bald/data/indexer.py	/^    def __len__(self):$/;"	m	class:Indexer
+__len__	bald/dataset.py	/^    def __len__(self):$/;"	m	class:ConllDataset
+__len__	bald/vocab.py	/^    def __len__(self):$/;"	m	class:Vocab
+_parse_NER_tag	bald/data/conll2003_utils.py	/^def _parse_NER_tag(raw_tag: str) -> str:$/;"	f
+_parse_single_line	bald/data/conll2003_utils.py	/^def _parse_single_line(line: str) -> Dict:$/;"	f
+add	bald/data/indexer.py	/^    def add(self, key):$/;"	m	class:Indexer
+add_token	bald/vocab.py	/^    def add_token(self,token: str) -> int:$/;"	m	class:Vocab
+args	scripts/train.py	/^args = parser.parse_args()$/;"	v
+char_channels	scripts/train.py	/^char_channels = [args.emsize] + [args.char_nhid] * args.char_layers$/;"	v
+charset	scripts/train.py	/^charset = Charset()$/;"	v
+compute_max_seq_len	bald/dataset.py	/^    def compute_max_seq_len(self):$/;"	m	class:ConllDataset
+compute_output_dim	bald/simple_model.py	/^    def compute_output_dim(self,h_in,padding,kernel_size):$/;"	m	class:ConllModel
+criterion	scripts/train.py	/^criterion = nn.NLLLoss(weight, size_average=False)$/;"	v
+data_dir	bald/__init__.py	/^data_dir = Path(__file__).parent.parent \/ "data"$/;"	v
+dependencies	setup.py	/^dependencies = [$/;"	v
+encoding	bald/vectorizer.py	/^    encoding = {$/;"	v	class:LabelVectorizer
+epoch_run	bald/utils.py	/^def epoch_run($/;"	f
+evaluate_model	scripts/train.py	/^def evaluate_model(test_data):$/;"	f
+fh	scripts/train.py	/^fh = logging.FileHandler("artifacts\/logs\/train.log") # TODO add timestamp$/;"	v
+forward	bald/model/cnn.py	/^    def forward(self, inputs):$/;"	m	class:ConvBlock
+forward	bald/model/cnn.py	/^    def forward(self, inputs):$/;"	m	class:ConvNet
+forward	bald/model/model.py	/^    def forward(self, inputs):$/;"	m	class:CharEncoder
+forward	bald/model/model.py	/^    def forward(self, inputs):$/;"	m	class:Decoder
+forward	bald/model/model.py	/^    def forward(self, word_input, char_input):$/;"	m	class:Model
+forward	bald/model/model.py	/^    def forward(self, word_inputs, char_embedding_inputs):$/;"	m	class:WordEncoder
+forward	bald/simple_model.py	/^    def forward(self,x_raw,apply_softmax=False,verbose=False):$/;"	m	class:ConllModel
+from_json	bald/vocab.py	/^    def from_json(cls,path: str):$/;"	m	class:Vocab
+generate_NER_tag_set	bald/data/conll2003_utils.py	/^def generate_NER_tag_set($/;"	f
+get_data_sampler	bald/data/samplers.py	/^    def get_data_sampler(self) -> BatchSampler:$/;"	m	class:BatchIndicesSamplerFactory
+godzilla	tests/minimal.json	/^{"<UNK>": 0, "<BOS>": 1, "<EOS>": 2, "godzilla": 3, "spiderman": 4}/;"	n
+init_weight	bald/model/model.py	/^    def init_weight(self):$/;"	m	class:Decoder
+init_weights	bald/model/cnn.py	/^    def init_weights(self):$/;"	m	class:ConvBlock
+init_weights	bald/model/model.py	/^    def init_weights(self):$/;"	m	class:CharEncoder
+len_sorted_raw_sentences	scripts/train.py	/^len_sorted_raw_sentences = sorted(train_raw_sentences, key=len, reverse=True)$/;"	v
+load	bald/data/indexer.py	/^    def load(self, f):$/;"	m	class:Indexer
+load_ner_dataset	bald/load_ner_dataset.py	/^def load_ner_dataset(path):$/;"	f
+load_ner_dataset_old	bald/load_ner_dataset.py	/^def load_ner_dataset_old(path):$/;"	f
+load_raw_dataset	bald/data/conll2003_utils.py	/^def load_raw_dataset(fpath: str) -> List[List[Dict]]:$/;"	f
+logger	scripts/train.py	/^logger = logging.getLogger("train_logger")$/;"	v
+lookup_id	bald/vocab.py	/^    def lookup_id(self,token: str) -> int:$/;"	m	class:Vocab
+lookup_token	bald/vocab.py	/^    def lookup_token(self,j: int) -> str:$/;"	m	class:Vocab
+loss_fun	bald/conll_trainer.py	/^def loss_fun(input,target):$/;"	f
+max_seq_len	bald/conll_trainer.py	/^max_seq_len = max(train_ds.max_seq_len,test_ds.max_seq_len)$/;"	v
+model	bald/conll_trainer.py	/^model = ConllModel($/;"	v
+model	scripts/train.py	/^    model = torch.load(f)$/;"	v
+model	scripts/train.py	/^model = Model($/;"	v
+nn	bald/model/cnn.py	/^import torch.nn as nn$/;"	I
+nn	bald/model/model.py	/^import torch.nn as nn$/;"	I
+nn	scripts/train.py	/^import torch.nn as nn$/;"	I
+np	bald/model/model.py	/^import numpy as np$/;"	I
+np	scripts/train.py	/^import numpy as np$/;"	I
+num_epochs	bald/conll_trainer.py	/^num_epochs = 30$/;"	v
+optim	scripts/train.py	/^import torch.optim as optim$/;"	I
+optimizer	bald/conll_trainer.py	/^optimizer = torch.optim.Adam(model.parameters())$/;"	v
+optimizer	scripts/train.py	/^optimizer = torch.optim.Adam(model.parameters())$/;"	v
+pad_embedding	scripts/train.py	/^pad_embedding = torch.empty(1, word_embedding_size).uniform_(-0.5, 0.5)$/;"	v
+parse_single_line	bald/load_ner_dataset.py	/^def parse_single_line(line):$/;"	f
+parser	scripts/train.py	/^parser = argparse.ArgumentParser()$/;"	v
+plt	bald/conll_trainer.py	/^import matplotlib.pyplot as plt$/;"	I
+pre_vectorize	bald/vectorizer.py	/^    def pre_vectorize(cls,sequence: List[str]) -> List[int]:$/;"	m	class:LabelVectorizer
+pre_vectorize	bald/vectorizer.py	/^    def pre_vectorize(self,sequence: List[str]) -> List[int]:$/;"	m	class:Vectorizer
+raw_data_to_train_data	scripts/train.py	/^def raw_data_to_train_data(sentences: List[List[str]]):$/;"	f
+record2charidx	scripts/train.py	/^    def record2charidx(record):$/;"	f	function:raw_data_to_train_data	file:
+record2idx	scripts/train.py	/^    record2idx = lambda record: vocab_set[record['word']]$/;"	f	function:raw_data_to_train_data	file:
+record2tag	scripts/train.py	/^    record2tag = lambda record: tag_set[record['NER_tag']]$/;"	f	function:raw_data_to_train_data	file:
+run_d	bald/conll_trainer.py	/^    run_d = epoch_run($/;"	v
+sample_pool	bald/data/samplers.py	/^    def sample_pool(self, n_elements: int) -> None:$/;"	m	class:ActiveLearningSamplerT
+sample_pool	bald/data/samplers.py	/^    def sample_pool(self, n_elements: int) -> None:$/;"	m	class:RandomALSampler
+save	bald/data/indexer.py	/^    def save(self, f):$/;"	m	class:Indexer
+score_fun	bald/conll_trainer.py	/^def score_fun(input,target):$/;"	f
+set_max_seq_len	bald/dataset.py	/^    def set_max_seq_len(self,val: int):$/;"	m	class:ConllDataset
+sh	scripts/train.py	/^sh = logging.StreamHandler(sys.stdout)$/;"	v
+spiderman	tests/minimal.json	/^{"<UNK>": 0, "<BOS>": 1, "<EOS>": 2, "godzilla": 3, "spiderman": 4}/;"	n
+tag_set	scripts/train.py	/^tag_set = Indexer()$/;"	v
+test_char_vectorizer	tests/vectorizer_test.py	/^def test_char_vectorizer():$/;"	f
+test_dl	bald/conll_trainer.py	/^test_dl = DataLoader(test_ds, batch_size=32, shuffle=False)$/;"	v
+test_ds	bald/conll_trainer.py	/^test_ds = ConllDataset(data_path=test_path,vectors=vectors,emb_dim=300)$/;"	v
+test_json	tests/vocab_test.py	/^def test_json():$/;"	f
+test_label_vectorizer	tests/vectorizer_test.py	/^def test_label_vectorizer():$/;"	f
+test_losses	bald/conll_trainer.py	/^test_losses = []$/;"	v
+test_path	bald/conll_trainer.py	/^test_path = os.path.join(data_dir,"raw","CoNLL2003","eng.testa")$/;"	v
+test_raw_sentences	scripts/train.py	/^test_raw_sentences = load_raw_dataset("artifacts\/data\/raw\/CoNLL2003\/eng.train")$/;"	v
+test_sentences	scripts/train.py	/^test_sentences = CoNLLNERDataset(test_raw_sentences)$/;"	v
+test_vocab	tests/vocab_test.py	/^def test_vocab():$/;"	f
+time_display	bald/log_utils.py	/^def time_display(s):$/;"	f
+to_json	bald/vocab.py	/^    def to_json(self,path: str):$/;"	m	class:Vocab
+train_dl	bald/conll_trainer.py	/^train_dl = DataLoader(train_ds, batch_size=32, shuffle=True)$/;"	v
+train_ds	bald/conll_trainer.py	/^train_ds = ConllDataset(data_path=train_path,vectors=vectors,emb_dim=300)$/;"	v
+train_losses	bald/conll_trainer.py	/^train_losses = []$/;"	v
+train_model	scripts/train.py	/^def train_model(epoch):$/;"	f
+train_path	bald/conll_trainer.py	/^train_path = os.path.join(data_dir,"raw","CoNLL2003","eng.train")$/;"	v
+train_raw_sentences	scripts/train.py	/^    train_raw_sentences = train_raw_sentences[:100]$/;"	v
+train_raw_sentences	scripts/train.py	/^train_raw_sentences = load_raw_dataset("artifacts\/data\/raw\/CoNLL2003\/eng.train")$/;"	v
+train_sentences	scripts/train.py	/^train_sentences = CoNLLNERDataset(len_sorted_raw_sentences)$/;"	v
+type	bald/data/indexer.py	/^    def type(char):$/;"	m	class:Charset
+unk_embedding	scripts/train.py	/^unk_embedding = torch.empty(1, word_embedding_size).uniform_(-0.5, 0.5)$/;"	v
+vectorize	bald/vectorizer.py	/^    def vectorize(cls,sequence: List[str]) -> Tensor:$/;"	m	class:LabelVectorizer
+vectorize	bald/vectorizer.py	/^    def vectorize(self, sequence: List[str]) -> Tensor:$/;"	m	class:WordVectorizer
+vectorize	bald/vectorizer.py	/^    def vectorize(self,sequence: List[str]) -> Tensor:$/;"	m	class:Vectorizer
+vectors	bald/conll_trainer.py	/^vectors = GloVe(cache=vectors_dir)$/;"	v
+vectors_dir	bald/__init__.py	/^vectors_dir = Path(__file__).parent.parent \/ ".word_vectors_cache"$/;"	v
+vocab_set	scripts/train.py	/^vocab_set = Vocabulary()$/;"	v
+weight	scripts/train.py	/^weight = [args.weight] * len(tag_set)$/;"	v
+weight	scripts/train.py	/^weight = torch.Tensor(weight)$/;"	v
+word_channels	scripts/train.py	/^word_channels = [word_embedding_size + args.char_nhid] + [args.word_nhid] * args.word_layers$/;"	v
+word_embedding_size	scripts/train.py	/^word_embedding_size = word_embeddings.size(1)$/;"	v
+word_embeddings	scripts/train.py	/^word_embeddings = torch.Tensor($/;"	v
+word_embeddings	scripts/train.py	/^word_embeddings = torch.cat([pad_embedding, unk_embedding, word_embeddings])$/;"	v

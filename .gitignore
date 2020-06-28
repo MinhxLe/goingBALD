@@ -8,3 +8,4 @@
 **.ipynb_checkpoints/
 # folder with pre-trained vector embeddings
 **.word_vectors_cache/
+**tags/
