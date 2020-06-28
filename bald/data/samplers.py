@@ -41,3 +41,9 @@ class ALRandomSampler(ActiveLearningSamplerT):
         self.labelled_idx_set = self.labelled_idx_set.union(new_labels)
         self.unlabelled_idx_set = self.unlabelled_idx_set.difference(new_labels)
         return n_sampled
+
+
+class BALDSampler(ActiveLearningSamplerT):
+
+    def label_n_elements(self, n_elements, model, data):
+        n_sampled = min(len(self.unlabelled_idx_set), n_elements)
