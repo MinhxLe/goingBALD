@@ -175,3 +175,6 @@ class Model(nn.Module):
         # TODO do we need this
         return F.log_softmax(y, dim=2)
 
+    def save_model(self, fname):
+        torch.save(self.state_dict(), fname)
+

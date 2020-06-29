@@ -1,5 +1,17 @@
 from sklearn.metrics import f1_score
 import tqdm
+import torch
+
+
+def mask_padding_loss(loss_tensor, sequence_lengths):
+    batch_size = loss_tensor.shape[0]
+    max_seq_len = loss_tensor.shape[1]
+
+    # shape is (batch_size, max_seq_len)
+    pos_tensor = torch.arange(0, max_seq_len).repeat(batch_size, 1)
+    len_tensor = torch.Tensor(sequence_lengths).view([-1, 1])
+    return (pos_tensor < len_tensor) * loss_tensor
+
 
 def epoch_run(
     model,
