@@ -3,7 +3,7 @@ import tqdm
 import torch
 
 
-def mask_padding_loss(loss_tensor, sequence_lengths):
+def mask_sequence(loss_tensor, sequence_lengths):
     batch_size = loss_tensor.shape[0]
     max_seq_len = loss_tensor.shape[1]
 

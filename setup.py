@@ -10,6 +10,7 @@ dependencies = [
     "matplotlib",
     "sklearn",
     "nltk",
+    "tensorflow"
 ]
 
 setup(

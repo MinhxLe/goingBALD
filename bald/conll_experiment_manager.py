@@ -7,13 +7,14 @@ import sys
 import time
 import torch
 import json
+import tensorflow as tf
 import torch.nn as nn
 import torch.optim as optim
 from bald.constants import (
-    CONLL_RAW_TRAIN_FNAME,
-    CONLL_RAW_TESTA_FNAME,
-    CONLL_DATA_PROCESSED_DIR,
-    EXPERIMENTS_RESULT_DIR,
+        CONLL_RAW_TRAIN_FNAME,
+        CONLL_RAW_TESTA_FNAME,
+        CONLL_DATA_PROCESSED_DIR,
+        EXPERIMENTS_RESULT_DIR,
 )
 from bald.data.conll2003_utils import load_raw_dataset
 from bald.data.constants import (
@@ -25,9 +26,14 @@ from bald.data.indexer import (
 )
 from bald.data.samplers import (
         ALRandomSampler,
+        MNLPSampler,
 )
-from bald.log_utils import time_display
-from bald.utils import mask_padding_loss
+from bald.log_utils import (
+    time_display,
+    set_up_experiment_logging,
+)
+
+from bald.utils import mask_sequence
 from bald.model.model import Model
 from sklearn.metrics import f1_score
 from torch.nn.utils.rnn import pad_sequence
@@ -41,44 +47,48 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 
+
+
 class CoNLL2003ActiveLearningExperimentManager:
-    def __init__(self, args):
+    """
+    - handles managing data set
+    - interface between model and raw data
+    - logging
+    - model generation
+    """
+    def __init__(self, args, save_exp=False):
         self.args = args
-        self.timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+
         if not os.path.exists(self.experiment_dir):
             os.makedirs(self.experiment_dir)
 
-        self.logger = self._get_logger()
+        self.save_exp = save_exp
+
+        experiments_root_path = os.path.join(EXPERIMENTS_RESULT_DIR, self.experiment_name)
+        self.logger, self.tf_summary_writer, self.model_snapshot_dir = (
+            set_up_experiment_logging(
+                self.experiment_name,
+                log_fpath=os.path.join(experiments_root_path, "experiment.log"),
+                model_snapshot_dir=os.path.join(experiments_root_path, "model_snapshots"),
+                metrics_dir=os.path.join(experiments_root_path, "metrics"),
+                stdout=args.stdout,
+                clear_old_data=True,
+            )
+        )
+
         self._init_data()
         self.model = self.get_model()
         self.criterion = self._get_criterion()
         self.optimizer = self._get_optimizer(self.model)
-
-        if not os.path.exists(self.experiment_dir):
-            os.makedirs(self.experiment_dir)
-        with open(os.path.join(self.experiment_dir, "experiment_args.txt"), 'w') as f:
-            json.dump(args.__dict__, f, indent=2)
+        torch.manual_seed(args.seed)
 
     @property
     def experiment_name(self):
-        if self.args.debug:
-            return f"{self.args.experiment_name}_DEBUG"
-        return f"{self.args.experiment_name}_{self.timestamp}"
+        return f"{self.args.experiment_name}"
 
     @property
     def experiment_dir(self):
         return os.path.join(EXPERIMENTS_RESULT_DIR, self.experiment_name)
-
-    def _get_logger(self):
-        logger = logging.getLogger(self.experiment_name)
-        fh = logging.FileHandler(os.path.join(self.experiment_dir, "experiment.log"))
-        fh.setLevel(logging.DEBUG)
-        logger.addHandler(fh)
-        sh = logging.StreamHandler(sys.stdout)
-        sh.setLevel(logging.DEBUG)
-        logger.addHandler(sh)
-        logger.setLevel(logging.DEBUG)
-        return logger
 
     def get_model(self) -> Model:
         charset = self.char_set
@@ -114,7 +124,6 @@ class CoNLL2003ActiveLearningExperimentManager:
     def _get_optimizer(self, model):
        return torch.optim.Adam(model.parameters())
 
-
     def _init_data(self) -> None:
         self.char_set = Charset()
         self.vocab_set = Vocabulary()
@@ -134,8 +143,9 @@ class CoNLL2003ActiveLearningExperimentManager:
 
     def _raw_data_to_train_data(self, sentences: List[List[str]]):
         """
-        convert raw data into model input and label
+        convert raw data into model input, label, and seq len
         """
+        # TODO does this belong as part of model
         vocab_set = self.vocab_set
         charset = self.char_set
         tag_set = self.tag_set
@@ -179,13 +189,14 @@ class CoNLL2003ActiveLearningExperimentManager:
                 batch_first=True,
                 padding_value = tag_set["O"],
         )
-        return padded_word_data, padded_char_data, padded_tag_data, torch.Tensor(sentence_len)
+        return (padded_word_data, padded_char_data), padded_tag_data, torch.Tensor(sentence_len)
 
     def _get_loss(self, prediction, target, sentence_lens):
         loss = self.criterion(prediction.view(-1, len(self.tag_set)), target.view(-1)).view(target.shape)
-        return torch.mean(mask_padding_loss(loss, sentence_lens))
+        return torch.mean(mask_sequence(loss, sentence_lens))
 
     def train_model_step(self, train_data_indices, start_time=None):
+        # TODO we don't retrain here, is that sensible?
         model = self.model
         train_data = self.train_data
         args = self.args
@@ -208,9 +219,9 @@ class CoNLL2003ActiveLearningExperimentManager:
 
         for idx, indices in enumerate(sampler):
             batch = [train_data[train_data_indices[i]] for i in indices]
-            word_data, char_data, tag_data, sentence_lens = self._raw_data_to_train_data(batch)
+            model_input, tag_data, sentence_lens = self._raw_data_to_train_data(batch)
             optimizer.zero_grad()
-            output = model(word_data, char_data)
+            output = model(*model_input)
             # (batch size, seq_len, tag_set)
             target = tag_data
             loss = self._get_loss(output, target, sentence_lens)
@@ -232,6 +243,7 @@ class CoNLL2003ActiveLearningExperimentManager:
                 count = 0
         if count > 0:
             train_losses.append(total_loss/count)
+        self.model = model
         return train_losses
 
     def evaluate_model_step(self, test_data=None):
@@ -254,10 +266,10 @@ class CoNLL2003ActiveLearningExperimentManager:
         count = 0
         with torch.no_grad():
             # for batch
-            for indices in BatchSampler(RandomSampler(test_data),args.batch_size, drop_last=False):
+            for indices in BatchSampler(SequentialSampler(test_data),args.batch_size, drop_last=False):
                 batch_data = [test_data[i] for i in indices]
-                word_data, char_data, tag_data, sentence_lens = self._raw_data_to_train_data(batch_data)
-                output = model(word_data, char_data)
+                model_input, tag_data, sentence_lens = self._raw_data_to_train_data(batch_data)
+                output = model(*model_input)
                 prediction = torch.argmax(output.view(-1, len(self.tag_set)), dim=-1) # getting class
                 target = tag_data
                 # TODO should i remove contributino from mask
@@ -272,16 +284,21 @@ class CoNLL2003ActiveLearningExperimentManager:
                 count += len(target)
         return total_loss/count, total_f1_score/total_batch_count
 
+    def _get_sampler(self):
+        raise Exception("pick a sampler")
+
+    def label_n_elements(self, sampler, n_elements):
+        raise Exception("using sampler not implemented")
+
     def run_experiment(self):
         args = self.args
         train_data = self.train_data
-        model = self.model
         logger = self.logger
         labelled_indices = set()
         test_f1_scores = []
         test_losses = []
         labelled_data_counts = []
-        AL_sampler = ALRandomSampler(len(train_data))
+        AL_sampler = self._get_sampler()
         curr_AL_epoch = 1
         start_time = time.monotonic()
 
@@ -290,7 +307,7 @@ class CoNLL2003ActiveLearningExperimentManager:
         try:
             while len(labelled_indices) < len(train_data):
                 # AL step
-                AL_sampler.label_n_elements(n_labels)
+                self.label_n_elements(AL_sampler, n_labels)
                 labelled_indices = AL_sampler.labelled_idx_set
 
                 labelled_data_counts.append(len(labelled_indices))
@@ -304,21 +321,31 @@ class CoNLL2003ActiveLearningExperimentManager:
                     logger.info(f"Train Epoch: {epoch}/{args.train_epochs}"
                                 f"\tElapsed Time: {time_display(time.monotonic()-start_time)}")
                     train_loss = self.train_model_step(labelled_indices, start_time)
+                #final train loss
+                train_loss, train_f1_score = self.evaluate_model_step(self.train_data)
+                with self.tf_summary_writer.as_default():
+                    tf.summary.scalar("train f1 score", train_f1_score, step=curr_AL_epoch)
+                    tf.summary.scalar("train loss", train_loss, step=curr_AL_epoch)
                 # validation step
                 test_loss, test_f1_score = self.evaluate_model_step()
                 test_losses.append(test_loss)
                 test_f1_scores.append(test_f1_score)
                 logger.info(
-                        f"AL Epoch:{curr_AL_epoch}/{curr_AL_epoch}"
+                        f"AL Epoch:{curr_AL_epoch}/{args.al_epochs}"
                         f"\tTest F1 Score: {test_f1_score}"
                         f"\tTest Loss: {test_loss}"
                         f"\tElapsed Time: {time_display(time.monotonic()-start_time)}")
+                with self.tf_summary_writer.as_default():
+                    tf.summary.scalar("test f1 score", test_f1_score, step=curr_AL_epoch)
+                    tf.summary.scalar("test loss", test_loss, step=curr_AL_epoch)
                 # save model
-                model_fpath = os.path.join(self.experiment_dir, f"model_AL_epoch_{curr_AL_epoch}.pt")
-                self.model.save_model(model_fpath)
-                if max(test_f1_scores) == test_f1_score:
-                    model_fpath = os.path.join(self.experiment_dir, f"model_BEST.pt")
-                    self.model.save_model(model_fpath)
+                if self.save_exp:
+                    model_fpath = os.path.join(self.model_snapshot_dir, f"model_AL_epoch_{curr_AL_epoch}.pt")
+                    torch.save(self.model.state_dict(), model_fpath)
+
+                    if max(test_f1_scores) == test_f1_score:
+                        model_fpath = os.path.join(self.model_snapshot_dir, f"model_BEST.pt")
+                        torch.save(self.model.state_dict(), model_fpath)
                 curr_AL_epoch += 1
         except KeyboardInterrupt:
             logger.warning('Exiting from training early!')
@@ -330,9 +357,29 @@ class CoNLL2003ActiveLearningExperimentManager:
             "labelled_data_counts": labelled_data_counts[:n],
             "test_f1_scores": test_f1_scores[:n],
             "test_losses": test_losses[:n]})
-        results_df.to_csv(os.path.join(self.experiment_dir, "test_results"))
-        # TODO extract out
-        # TODO generate plots
-        plt.plot(labelled_data_counts[:n], test_f1_scores[:n])
-        plt.legend()
-        plt.savefig(os.path.join(self.experiment_dir, "test_n_labelled_f1_scores.png"))
+        results_df.to_csv(os.path.join(self.experiment_dir, "test_results.csv"))
+
+
+class RandomExperimentManager(CoNLL2003ActiveLearningExperimentManager):
+
+    def __init__(self, args, save_exp=False):
+        super().__init__(args, save_exp)
+
+    def _get_sampler(self):
+        return ALRandomSampler(len(self.train_data))
+
+    def label_n_elements(self, sampler, n_elements):
+        sampler.label_n_elements(n_elements)
+
+
+class MNLPExperimentManager(CoNLL2003ActiveLearningExperimentManager):
+
+    def __init__(self, args, save_exp=False):
+        super().__init__(args, save_exp)
+
+    def _get_sampler(self):
+        return MNLPSampler(self.train_data)
+
+    def label_n_elements(self, sampler, n_elements):
+        return sampler.label_n_elements(n_elements,
+                self.model, self._raw_data_to_train_data)

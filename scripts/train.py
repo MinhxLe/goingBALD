@@ -1,9 +1,12 @@
+import json
 import argparse
 import os
 from bald.constants import CONLL_DATA_PROCESSED_DIR
 from bald.conll_experiment_manager import (
-    CoNLL2003ActiveLearningExperimentManager,
+    MNLPExperimentManager,
+    RandomExperimentManager,
 )
+from datetime import datetime
 
 parser = argparse.ArgumentParser()
 # model args
@@ -38,29 +41,48 @@ parser.add_argument('--train_epochs', type=int, default=3,
                     help='upper training epoch limit (default: 3)')
 parser.add_argument('--lr', type=float, default=4,
                     help='initial learning rate (default: 4)')
-parser.add_argument('--optim', type=str, default='SGD',
-                    help='optimizer type (default: SGD)')
+# parser.add_argument('--optim', type=str, default='SGD',
+#                     help='optimizer type (default: SGD)')
 parser.add_argument('--weight', type=float, default=10,
                     help='manual rescaling weight given to each tag except "O"')
 parser.add_argument('--seed', type=int, default=1111,
                     help='random seed (default: 1111)')
 # AL args
 parser.add_argument('--al_epochs', type=int, default=20,
-                    help='# of active learning steps (default: 10)')
+                    help='# of active learning steps (default: 20)')
 
 # experiment logging/debugging
-parser.add_argument('--experiment_name', type=str, default='conll2003_random_sampler',
-                    help='experiment name')
+parser.add_argument('--al_sampler', type=str,
+                    help='active learning sampler')
+# parser.add_argument('--experiment_name', type=str,
+#                     default=f'conll2003_random_sampler',
+# parser.add_argument('--experiment_name', type=str,
+#                     default=f'conll2003_mnlp_sampler_{timestamp_str}',
+#                     help='experiment name')
 parser.add_argument('--log_interval', type=int, default=10, metavar='N',
                     help='report interval (default: 10)')
 parser.add_argument('--debug', type=bool, default=False,
                     help='is debug runs on smaller dataset (defaults to False)')
+parser.add_argument('--stdout', type=bool, default=False,
+                    help='print log message in stdout')
 args = parser.parse_args()
+
+# TODO add other arguments in
+timestamp_str = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+args.experiment_name = f"conll2003_{args.al_sampler}_sampler_{timestamp_str}"
 
 if args.debug:
     args.train_epochs = 1
     args.batch_size = 25
     args.al_epochs = 2
+    args.experiment_name += "_DEBUG"
+if args.al_sampler == "mnlp":
+    manager = MNLPExperimentManager(args, save_exp=True)
+elif args.al_sampler == "random":
+    manager = RandomExperimentManager(args, save_exp=True)
+else:
+    raise Exception("sampler not implemented")
 
-manager = CoNLL2003ActiveLearningExperimentManager(args)
+with open(os.path.join(manager.experiment_dir, "experiment_args.txt"), 'w') as f:
+    json.dump(args.__dict__, f, indent=2)
 manager.run_experiment()
