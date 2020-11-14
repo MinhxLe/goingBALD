@@ -1,8 +1,12 @@
 import json
 import argparse
 import os
-from bald.constants import CONLL_DATA_PROCESSED_DIR
+from bald.constants import (
+    CONLL_DATA_PROCESSED_DIR,
+    EXPERIMENTS_RESULT_DIR,
+)
 from bald.conll_experiment_manager import (
+    DropoutBALDExperimentManager,
     MNLPExperimentManager,
     RandomExperimentManager,
 )
@@ -65,6 +69,9 @@ parser.add_argument('--debug', type=bool, default=False,
                     help='is debug runs on smaller dataset (defaults to False)')
 parser.add_argument('--stdout', type=bool, default=False,
                     help='print log message in stdout')
+
+parser.add_argument('--mc_sample_size', type=int, default=100,
+                    help='mc sample size for dropout BALD')
 args = parser.parse_args()
 
 # TODO add other arguments in
@@ -72,14 +79,17 @@ timestamp_str = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 args.experiment_name = f"conll2003_{args.al_sampler}_sampler_{timestamp_str}"
 
 if args.debug:
+    args.experiment_name = f"conll2003_{args.al_sampler}_sampler_DEBUG"
     args.train_epochs = 1
     args.batch_size = 25
     args.al_epochs = 2
-    args.experiment_name += "_DEBUG"
 if args.al_sampler == "mnlp":
     manager = MNLPExperimentManager(args, save_exp=True)
 elif args.al_sampler == "random":
     manager = RandomExperimentManager(args, save_exp=True)
+elif args.al_sampler == "BALD":
+    manager = DropoutBALDExperimentManager(args, save_exp=True)
+
 else:
     raise Exception("sampler not implemented")
 

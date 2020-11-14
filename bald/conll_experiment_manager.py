@@ -27,6 +27,7 @@ from bald.data.indexer import (
 from bald.data.samplers import (
         ALRandomSampler,
         MNLPSampler,
+        DropoutBALDSampler,
 )
 from bald.log_utils import (
     time_display,
@@ -379,6 +380,19 @@ class MNLPExperimentManager(CoNLL2003ActiveLearningExperimentManager):
 
     def _get_sampler(self):
         return MNLPSampler(self.train_data)
+
+    def label_n_elements(self, sampler, n_elements):
+        return sampler.label_n_elements(n_elements,
+                self.model, self._raw_data_to_train_data)
+
+
+class DropoutBALDExperimentManager(CoNLL2003ActiveLearningExperimentManager):
+
+    def __init__(self, args, save_exp=False):
+        super().__init__(args, save_exp)
+
+    def _get_sampler(self):
+        return DropoutBALDSampler(self.train_data, self.args.mc_sample_size)
 
     def label_n_elements(self, sampler, n_elements):
         return sampler.label_n_elements(n_elements,
