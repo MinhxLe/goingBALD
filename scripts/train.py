@@ -9,6 +9,7 @@ from bald.conll_experiment_manager import (
     DropoutBALDExperimentManager,
     MNLPExperimentManager,
     RandomExperimentManager,
+    RLExperimentManager
 )
 from datetime import datetime
 
@@ -41,8 +42,8 @@ parser.add_argument('--word_nhid', type=int, default=300,
                     help='number of hidden units per word-level convolution layer (default: 300)')
 
 # training args
-parser.add_argument('--train_epochs', type=int, default=3,
-                    help='upper training epoch limit (default: 3)')
+parser.add_argument('--train_epochs', type=int, default=1,
+                    help='upper training epoch limit (default: 2)')
 parser.add_argument('--lr', type=float, default=4,
                     help='initial learning rate (default: 4)')
 # parser.add_argument('--optim', type=str, default='SGD',
@@ -52,8 +53,10 @@ parser.add_argument('--weight', type=float, default=10,
 parser.add_argument('--seed', type=int, default=1111,
                     help='random seed (default: 1111)')
 # AL args
-parser.add_argument('--al_epochs', type=int, default=20,
-                    help='# of active learning steps (default: 20)')
+parser.add_argument('--al_epochs', type=int, default=50,
+                    help='# of active learning steps (default: 100)')
+parser.add_argument('--rl_epsilon', type=float, default=0.01,
+                    help='epsilon used for e greedy bandit')
 
 # experiment logging/debugging
 parser.add_argument('--al_sampler', type=str,
@@ -63,6 +66,8 @@ parser.add_argument('--al_sampler', type=str,
 # parser.add_argument('--experiment_name', type=str,
 #                     default=f'conll2003_mnlp_sampler_{timestamp_str}',
 #                     help='experiment name')
+parser.add_argument('--save_interval', type=int, default=10, metavar='N',
+                    help='save interval (default: 10)')
 parser.add_argument('--log_interval', type=int, default=10, metavar='N',
                     help='report interval (default: 10)')
 parser.add_argument('--debug', type=bool, default=False,
@@ -89,10 +94,13 @@ elif args.al_sampler == "random":
     manager = RandomExperimentManager(args, save_exp=True)
 elif args.al_sampler == "BALD":
     manager = DropoutBALDExperimentManager(args, save_exp=True)
-
+elif args.al_sampler == "e_greedy_bandit":
+    manager = RLExperimentManager(args, save_exp=True)
 else:
     raise Exception("sampler not implemented")
 
 with open(os.path.join(manager.experiment_dir, "experiment_args.txt"), 'w') as f:
     json.dump(args.__dict__, f, indent=2)
 manager.run_experiment()
+
+

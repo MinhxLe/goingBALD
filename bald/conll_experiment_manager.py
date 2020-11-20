@@ -28,6 +28,7 @@ from bald.data.samplers import (
         ALRandomSampler,
         MNLPSampler,
         DropoutBALDSampler,
+        EpsilonGreedyBanditSampler
 )
 from bald.log_utils import (
     time_display,
@@ -46,8 +47,6 @@ from torch.utils.data import (
 from typing import List
 from datetime import datetime
 import matplotlib.pyplot as plt
-
-
 
 
 class CoNLL2003ActiveLearningExperimentManager:
@@ -82,6 +81,7 @@ class CoNLL2003ActiveLearningExperimentManager:
         self.criterion = self._get_criterion()
         self.optimizer = self._get_optimizer(self.model)
         torch.manual_seed(args.seed)
+        np.random.seed(args.seed)
 
     @property
     def experiment_name(self):
@@ -310,11 +310,12 @@ class CoNLL2003ActiveLearningExperimentManager:
                 # AL step
                 self.label_n_elements(AL_sampler, n_labels)
                 labelled_indices = AL_sampler.labelled_idx_set
-
-                labelled_data_counts.append(len(labelled_indices))
+                n_labeled = len(labelled_indices)
+                labelled_data_counts.append(n_labeled)
                 logger.info("-" * 118)
                 logger.info(
                         f"AL Epoch: {curr_AL_epoch}/{args.al_epochs}"
+                        f"\tTrain Data Labeled: {n_labeled}/{len(self.train_data)}"
                         f"\tLabelled Data: {len(labelled_indices)}/{len(train_data)}"
                         f"\tElapsed Time: {time_display(time.monotonic()-start_time)}")
                 # train step
@@ -325,24 +326,28 @@ class CoNLL2003ActiveLearningExperimentManager:
                 #final train loss
                 train_loss, train_f1_score = self.evaluate_model_step(self.train_data)
                 with self.tf_summary_writer.as_default():
-                    tf.summary.scalar("train f1 score", train_f1_score, step=curr_AL_epoch)
-                    tf.summary.scalar("train loss", train_loss, step=curr_AL_epoch)
+                    tf.summary.scalar("train f1 score", train_f1_score, step=n_labeled)
+                    tf.summary.scalar("train loss", train_loss, step=n_labeled)
                 # validation step
                 test_loss, test_f1_score = self.evaluate_model_step()
                 test_losses.append(test_loss)
                 test_f1_scores.append(test_f1_score)
                 logger.info(
                         f"AL Epoch:{curr_AL_epoch}/{args.al_epochs}"
+                        f"\tTrain Data Labeled: {n_labeled}/{len(self.train_data)}"
                         f"\tTest F1 Score: {test_f1_score}"
                         f"\tTest Loss: {test_loss}"
                         f"\tElapsed Time: {time_display(time.monotonic()-start_time)}")
                 with self.tf_summary_writer.as_default():
-                    tf.summary.scalar("test f1 score", test_f1_score, step=curr_AL_epoch)
-                    tf.summary.scalar("test loss", test_loss, step=curr_AL_epoch)
+                    tf.summary.scalar("test f1 score", test_f1_score, step=n_labeled)
+                    tf.summary.scalar("test loss", test_loss, step=n_labeled)
                 # save model
                 if self.save_exp:
-                    model_fpath = os.path.join(self.model_snapshot_dir, f"model_AL_epoch_{curr_AL_epoch}.pt")
-                    torch.save(self.model.state_dict(), model_fpath)
+                    if (curr_AL_epoch+1) % args.save_interval == 0:
+                        model_fpath = os.path.join(
+                            self.model_snapshot_dir,
+                            f"model_train_data_labeled_{n_labeled}_{len(self.train_data)}.pt")
+                        torch.save(self.model.state_dict(), model_fpath)
 
                     if max(test_f1_scores) == test_f1_score:
                         model_fpath = os.path.join(self.model_snapshot_dir, f"model_BEST.pt")
@@ -397,3 +402,101 @@ class DropoutBALDExperimentManager(CoNLL2003ActiveLearningExperimentManager):
     def label_n_elements(self, sampler, n_elements):
         return sampler.label_n_elements(n_elements,
                 self.model, self._raw_data_to_train_data)
+
+
+class RLExperimentManager(CoNLL2003ActiveLearningExperimentManager):
+    def _get_sampler(self):
+        return EpsilonGreedyBanditSampler(self.train_data, self.args.rl_epsilon)
+
+    def label_n_elements(self, sampler, n_elements):
+        return sampler.label_n_elements(n_elements,
+                self.model, self._raw_data_to_train_data)
+
+    def run_experiment(self):
+        # we override the run_experiment since the setup is slightly different
+        # since we need to pass reward back to the RL sampler
+        args = self.args
+        train_data = self.train_data
+        logger = self.logger
+        labelled_indices = set()
+        test_f1_scores = []
+        test_losses = []
+        labelled_data_counts = []
+        AL_sampler = self._get_sampler()
+        curr_AL_epoch = 1
+        start_time = time.monotonic()
+
+        logger.info(f"{args.experiment_name} experiment")
+        n_labels = len(train_data)//args.al_epochs
+        prev_f1_score = 0
+        try:
+            while len(labelled_indices) < len(train_data):
+                # AL step
+                arm, _ = self.label_n_elements(AL_sampler, n_labels)
+                labelled_indices = AL_sampler.labelled_idx_set
+                n_labeled = len(labelled_indices)
+                labelled_data_counts.append(n_labeled)
+                logger.info("-" * 118)
+                logger.info(
+                        f"AL Epoch: {curr_AL_epoch}/{args.al_epochs}"
+                        f"\tTrain Data Labeled: {n_labeled}/{len(self.train_data)}"
+                        f"\tLabelled Data: {len(labelled_indices)}/{len(train_data)}"
+                        f"\tElapsed Time: {time_display(time.monotonic()-start_time)}")
+
+                for i, sampler in enumerate(AL_sampler.samplers):
+                    logger.info(f"{type(sampler)} q estimation {AL_sampler.q_score[i]}")
+                # train step
+                for epoch in range(1, args.train_epochs+1):
+                    logger.info(f"Train Epoch: {epoch}/{args.train_epochs}"
+                                f"\tElapsed Time: {time_display(time.monotonic()-start_time)}")
+                    train_loss = self.train_model_step(labelled_indices, start_time)
+                #final train loss
+                train_loss, train_f1_score = self.evaluate_model_step(self.train_data)
+                with self.tf_summary_writer.as_default():
+                    for i, sampler in enumerate(AL_sampler.samplers):
+                        tf.summary.scalar(f"{type(sampler)} q estimation",
+                                AL_sampler.q_score[i],
+                                step=n_labeled)
+                    tf.summary.scalar("train f1 score", train_f1_score, step=n_labeled)
+                    tf.summary.scalar("train loss", train_loss, step=n_labeled)
+                # validation step
+                test_loss, test_f1_score = self.evaluate_model_step()
+                test_losses.append(test_loss)
+                test_f1_scores.append(test_f1_score)
+                logger.info(
+                        f"AL Epoch:{curr_AL_epoch}/{args.al_epochs}"
+                        f"\tTrain Data Labeled: {n_labeled}/{len(self.train_data)}"
+                        f"\tTest F1 Score: {test_f1_score}"
+                        f"\tTest Loss: {test_loss}"
+                        f"\tElapsed Time: {time_display(time.monotonic()-start_time)}")
+                with self.tf_summary_writer.as_default():
+                    tf.summary.scalar("test f1 score", test_f1_score, step=n_labeled)
+                    tf.summary.scalar("test loss", test_loss, step=n_labeled)
+                # save model
+                if self.save_exp:
+                    if (curr_AL_epoch+1) % args.save_interval == 0:
+                        model_fpath = os.path.join(
+                            self.model_snapshot_dir,
+                            f"model_train_data_labeled_{n_labeled}_{len(self.train_data)}.pt")
+                        torch.save(self.model.state_dict(), model_fpath)
+
+                    if max(test_f1_scores) == test_f1_score:
+                        model_fpath = os.path.join(self.model_snapshot_dir, f"model_BEST.pt")
+                        torch.save(self.model.state_dict(), model_fpath)
+                # TODO we can move this out
+                logger.info(f"reward: {train_f1_score-prev_f1_score}")
+                AL_sampler.update_q_score(arm, train_f1_score-prev_f1_score)
+                prev_f1_score = train_f1_score
+                curr_AL_epoch += 1
+        except KeyboardInterrupt:
+            logger.warning('Exiting from training early!')
+
+        # TODO add train losses
+        # TODO extract out
+        n = np.min((len(labelled_data_counts), len(test_f1_scores), len(test_losses)))
+        results_df = pd.DataFrame.from_dict({
+            "labelled_data_counts": labelled_data_counts[:n],
+            "test_f1_scores": test_f1_scores[:n],
+            "test_losses": test_losses[:n]})
+        results_df.to_csv(os.path.join(self.experiment_dir, "test_results.csv"))
+

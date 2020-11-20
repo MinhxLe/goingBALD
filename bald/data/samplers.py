@@ -17,7 +17,9 @@ class ActiveLearningSamplerT:
     """
     ActiveLearningSampler manages a dataset and what is labeled/unlabled
     """
-    def __init__(self, n_elements):
+    def __init__(
+            self,
+            n_elements):
         self.labelled_idx_set = set()
         self.unlabelled_idx_set = set([i for i in range(n_elements)])
 
@@ -42,17 +44,17 @@ class ALRandomSampler(ActiveLearningSamplerT):
     def label_n_elements(self, n_elements: int) -> int:
         n_sampled = min(len(self.unlabelled_idx_set), n_elements)
         new_labels = set(random.sample(self.unlabelled_idx_set, n_sampled))
-        self.labelled_idx_set = self.labelled_idx_set.union(new_labels)
-        self.unlabelled_idx_set = self.unlabelled_idx_set.difference(new_labels)
+        self.labelled_idx_set |= new_labels
+        self.unlabelled_idx_set -= new_labels
         return n_sampled
 
 
-class LeastConfidenceSampler(ActiveLearningSamplerT):
-    def label_n_elements(self, n_elements: int) -> int:
-        n_sampled = min(len(self.unlabelled_idx_set), n_elements)
-        new_labels = set(random.sample(self.unlabelled_idx_set, n_sampled))
-        self.labelled_idx_set = self.labelled_idx_set.union(new_labels)
-        self.unlabelled_idx_set = self.unlabelled_idx_set.difference(new_labels)
+# class LeastConfidenceSampler(ActiveLearningSamplerT):
+#     def label_n_elements(self, n_elements: int) -> int:
+#         n_sampled = min(len(self.unlabelled_idx_set), n_elements)
+#         new_labels = set(random.sample(self.unlabelled_idx_set, n_sampled))
+#         self.labelled_idx_set = self.labelled_idx_set.union(new_labels)
+#         self.unlabelled_idx_set = self.unlabelled_idx_set.difference(new_labels)
 
 
 class FixedHeap:
@@ -83,8 +85,7 @@ class MNLPSampler(ActiveLearningSamplerT):
 
     def __init__(self, train_data):
         n_elements = len(train_data)
-        self.labelled_idx_set = set()
-        self.unlabelled_idx_set = set([i for i in range(n_elements)])
+        super().__init__(n_elements)
         self.train_data = train_data
 
     def label_n_elements(
@@ -181,7 +182,7 @@ class DropoutBALDSampler(ActiveLearningSamplerT):
                     heap.push((score, index))
                 else:
                     min_score, _ = heap.top()
-                    if score > -min_score :
+                    if score > -min_score:
                         heap.pop()
                         heap.push((score, index))
         while len(heap) > 0:
@@ -190,3 +191,50 @@ class DropoutBALDSampler(ActiveLearningSamplerT):
             self.unlabelled_idx_set.remove(idx)
         del heap
         return n_to_sample
+
+
+class EpsilonGreedyBanditSampler(ActiveLearningSamplerT):
+    # TODO add TS sampling
+    def __init__(self, train_data, epsilon=0.01):
+        self.n_elements = len(train_data)
+        super().__init__(self.n_elements)
+        self.samplers = [
+            ALRandomSampler(self.n_elements),
+            MNLPSampler(train_data)
+        ]
+        # we make sure we share the same set when labelling
+        for sampler in self.samplers:
+            sampler.unlabelled_idx_set = (
+                self.unlabelled_idx_set)
+            sampler.labelled_idx_set = (
+                self.labelled_idx_set)
+        self.n_samplers = len(self.samplers)
+        self.q_score = np.zeros(self.n_samplers)
+        self.arm_count = np.zeros(self.n_samplers)
+        self.epsilon = epsilon
+
+    def label_n_elements(
+            self,
+            n_elements: int,
+            model,
+            data_process_fn,
+            ) -> int:
+        sampler_selected = None
+        if np.random.random() <= self.epsilon:
+            arm = np.random.randint(0, self.n_samplers)
+        else:
+            arm = np.argmax(self.q_score)
+        sampler_selected = self.samplers[arm]
+        # TODO add logging of which arm selected
+        if isinstance(sampler_selected, ALRandomSampler):
+            n_labeled = sampler_selected.label_n_elements(n_elements)
+        if isinstance(sampler_selected, MNLPSampler):
+            n_labeled = sampler_selected.label_n_elements(n_elements, model, data_process_fn)
+        return arm, n_labeled
+
+
+    def update_q_score(self, action, reward):
+        # TODO we can probably can do more aggressive score decay
+        self.arm_count[action] += 1
+        self.q_score[action] += (reward - self.q_score[action])/self.arm_count[action]
+
